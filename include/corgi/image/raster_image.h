@@ -32,6 +32,23 @@ public:
      */
     int width() const;
 
+    enum class width_resize_mode
+    {
+        stretch,    // The image is stretched to fill the new width
+        left,       // New pixels are added to the left side of the image
+        right,      // New pixels are added to the right side of the image
+        center      // New pixels are equally added to the left and right of the
+                    // image
+    };
+
+    enum class height_resize_mode
+    {
+        stretch,    // The image is stretched to fill the new height
+        up,         // New pixels are added to the top side of the image
+        down,       // New pixels are added to the down side of the image
+        center    // New pixels are added to the top and down side of the image
+    };
+
     /**
      * @brief   Resize the image, trying to keep the existing pixels in place
      *
