@@ -1,5 +1,6 @@
 #pragma once
 
-namespace corgi{
-	 void image();
+namespace corgi
+{
+void image();
 }
