@@ -6,13 +6,14 @@ namespace corgi::image
 raster_image::raster_image(const int width,
                            const int height,
                            const int color_channel_count,
-                           const int bits_per_channel)
+                           const int bits_per_color_channel)
     : width_(width)
-    , height(height)
-    , bits_per_channel(bits_per_channel)
-    , color_channel_count(color_channel_count)
+    , height_(height)
+    , bits_per_color_channel_(bits_per_color_channel)
+    , color_channel_count_(color_channel_count)
 {
-    data_.resize(bits_per_channel * color_channel_count * width * height);
+    data_.resize(bits_per_color_channel * color_channel_count_ * width_ *
+                 height_);
 }
 
 int raster_image::width() const
@@ -27,7 +28,7 @@ int raster_image::height() const
 
 int raster_image::bits_per_pixel() const
 {
-    return color_channel_count * bits_per_channel;
+    return color_channel_count * bits_per_color_channel_;
 }
 
 }    // namespace corgi::image

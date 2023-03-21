@@ -13,24 +13,26 @@ namespace corgi::image
  *
  *		Usual format being rgba : with 1 byte for each channel
  *
+ *      The image starts on the top left corner :
  *
+ *      (0,0)
+ *      +------------->
+ *      |
+ *      |
+ *      |
+ *      |
+ *      |
+ *     \|/
  */
 class raster_image
 {
-
 public:
     /**
-     * @brief   Creates a new raster image with all pixel channel set to 0
+     *@brief    Checks whether 2 images are almost equals
      */
-    raster_image(int width,
-                 int height,
-                 int color_channel_count,
-                 int bits_per_channel);
-
-    /**
-     * @brief   Returns the image's width
-     */
-    int width() const;
+    static bool almost_equal(const raster_image& img1,
+                             const raster_image& img2,
+                             int                 threshold);
 
     enum class width_resize_mode
     {
@@ -50,23 +52,35 @@ public:
     };
 
     /**
-     * @brief   Resize the image, trying to keep the existing pixels in place
-     *
-     *          @param
+     * @brief   Creates a new raster image with all pixel channel set to 0
      */
-    void width(int new_width, bool stretch = false);
+    raster_image(int width,
+                 int height,
+                 int color_channel_count,
+                 int bits_per_channel);
 
     /**
-     * @brief   Image's height
+     * @brief   Returns the image's width
+     */
+    int width() const;
+
+    /**
+     * @brief   Resize the image in width
+     *
+     *          @param new_width : Image's new width
+     */
+    void width(int               new_width,
+               width_resize_mode resize_mode = width_resize_mode::right);
+
+    /**
+     * @brief   Return's the image's on the y axis
      */
     int height() const;
 
-    int width_;
-
     /**
-     * @brief   Image's heigth
+     * @brief   Resize the the image on the x axis
      */
-    int height_;
+    void height(int new_height, height_resize_mode = height_resize_mode::down);
 
     /**
      * @brief   Computes how many bits are used for 1 pixel.
@@ -74,16 +88,70 @@ public:
     int bits_per_pixel() const;
 
     /**
-     * @brief   Data image
+     * @brief   Gets how many bits are used per channel for the image
+     */
+    int bits_per_color_channel() const;
+
+    /**
+     * @brief   Gets how many color channel the image is made of
+     */
+    int color_channel_count() const;
+
+    struct rgba_32_pixel
+    {
+        unsigned char r, g, b, a;
+    };
+
+    struct rgb_24_pixel
+    {
+        unsigned char r, g, b;
+    };
+
+    // would be nice to have the usual pixels though but I'm not really sure how
+    // to handle that
+    class pixel
+    {
+        /**
+         * @brief Converts the pixel in rgba 32 bitsPerPixel format
+         */
+        rgba_32_pixel as_rgba_32();
+
+        /**
+         * @brief Convertes the pixel in rgb 24 bitsPerPixel format
+         */
+        rgb_24_pixel as_rgb_24();
+
+        int                color_channel_count;
+        int                bits_per_pixel;
+        std::vector<bool>* data;
+    };
+
+    // Well that's a solution, but I'd still
+
+    class iterator
+    {
+    public:
+        void  operator++();
+        void  operator*();
+        pixel operator->();
+
+        friend bool operator==(iterator& it1, iterator& it2);
+    };
+
+    iterator begin();
+    iterator end();
+
+    /**
+     * @brief   Image data
      */
     std::vector<bool> data_;
 
+private:
+    int width_;
     /**
-     * @brief   Channel size in bits
-     *
-     *          Images usually uses 8 bits per channel (1 byte)
+     * @brief   Image's heigth
      */
-    int bits_per_channel_;
+    int height_;
 
     /**
      * @brief   Channel count
@@ -93,6 +161,21 @@ public:
      *          3 = RGB
      *          4 = RGBA
      */
-    int color_channel_count;
+    int color_channel_count_;
+
+    /**
+     * @brief   Channel size in bits
+     *
+     *          Images usually uses 8 bits per channel (1 byte)
+     */
+    int bits_per_color_channel_;
+
+    friend bool operator==(const raster_image& img1, const raster_image& img2);
+    friend int  operator<=>(const raster_image& img1, const raster_image& img2);
 };
+
+bool operator==(const raster_image::iterator& it1, const raster_image& it2);
+
+bool operator==(const raster_image& img1, const raster_image& img2);
+int  operator<=>(const raster_image& img1, const raster_image& img2);
 }    // namespace corgi::image
