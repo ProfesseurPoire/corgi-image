@@ -2,7 +2,7 @@ cmake_minimum_required (VERSION 3.13.0)
 
 project(test-corgi-image)
 
-add_executable(${PROJECT_NAME} "") 
+add_executable(${PROJECT_NAME} WIN32 "" ) 
 
 # I'm not sure I understand all the advantages on using target_sources but at least
 # it's one way to avoid adding variables, and to define our target early
