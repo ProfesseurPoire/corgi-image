@@ -86,14 +86,6 @@ public:
     };
 
     /**
-     * @brief   Constructs a new raster image with all pixel channel set to 0
-     */
-    raster_image(int   width,
-                 int   height,
-                 short color_channel_count,
-                 short bits_per_color_channel);
-
-    /**
      * @brief   Constructs a new raster image with the given dimension and
      *          pixel_format. All pixel are set to 0
      */
@@ -110,6 +102,11 @@ public:
      *          from @p pixel and fill it with a copy of @p pixel
      */
     raster_image(int width, int height, rgba_32_pixel pixel);
+
+    /**
+     * @brief   Gets how many pixels make the raster image
+     */
+    int size() const;
 
     /**
      * @brief   Returns the image's width
@@ -163,6 +160,8 @@ public:
     std::byte* data();
 
 private:
+    void init_data();
+
     /**
      * @brief   Image data
      */
