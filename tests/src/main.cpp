@@ -1,11 +1,13 @@
+#include <corgi/image/binary.h>
 #include <corgi/image/raster_image.h>
+#include <corgi/test/test.h>
 #include <windows.h>
 
 #include <vector>
 
 using namespace corgi::image;
 
-raster_image img = raster_image(100, 100, 4, 8);
+raster_image img = raster_image(100, 100, corgi::image::pixel_format::rgba_32);
 
 // Callback function for the current win32 window
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
@@ -18,6 +20,30 @@ int WINAPI WinMain(HINSTANCE hInstance,
                    int       nCmdShow)
 {
 
+    corgi::test::add_test(
+        "corgi-binary", "check_bit",
+        []() -> void
+        {
+            int r = 0b00000000000000111011100111110111;
+
+            int v = 0b11111111111110111001111101111101;
+            assert_that(corgi::binary::get_bit(
+                            0, reinterpret_cast<unsigned char*>(&v), 4),
+                        corgi::test::equals(1));
+            assert_that(corgi::binary::get_bit(
+                            1, reinterpret_cast<unsigned char*>(&v), 4),
+                        corgi::test::equals(0));
+
+            auto result = corgi::binary::get_binary_value(
+                4, 18, reinterpret_cast<unsigned char*>(&v), 4);
+
+            assert_that(result, corgi::test::equals(static_cast<long long>(r)));
+        }
+
+    );
+
+    corgi::test::run_all();
+
     for(int i = 0; i < 16; i++)
     {
         pixels.push_back(255);
@@ -25,32 +51,30 @@ int WINAPI WinMain(HINSTANCE hInstance,
         pixels.push_back(0);
     }
 
-    // Nom de la classe de la fen�tre
+    // Nom de la classe de la window
     const char CLASS_NAME[] = "corgi-image tests";
 
-    // Structure de la fen�tre
+    // Structure de la window
     WNDCLASS wc = {};
 
     wc.lpfnWndProc   = WindowProc;
     wc.hInstance     = hInstance;
     wc.lpszClassName = CLASS_NAME;
 
-    // Enregistrement de la classe de la fen�tre
     RegisterClass(&wc);
 
-    // Cr�ation de la fen�tre
-    HWND hwnd = CreateWindowEx(
-        0,                               // Style de la fen�tre
-        CLASS_NAME,                      // Nom de la classe de la fen�tre
-        "corgi-image tests",             // Titre de la fen�tre
-        WS_OVERLAPPEDWINDOW,             // Style de la fen�tre
-        CW_USEDEFAULT, CW_USEDEFAULT,    // Position de la fen�tre
-        CW_USEDEFAULT, CW_USEDEFAULT,    // Taille de la fen�tre
-        NULL,                            // Handle de la fen�tre parent
-        NULL,                            // Handle du menu de la fen�tre
-        hInstance,    // Handle de l'instance de l'application
-        NULL          // Param�tre additionnel
-    );
+    HWND hwnd =
+        CreateWindowEx(0,                               // Style
+                       CLASS_NAME,                      // Nom de la classe
+                       "corgi-image tests",             // Titre
+                       WS_OVERLAPPEDWINDOW,             // Style
+                       CW_USEDEFAULT, CW_USEDEFAULT,    // Position
+                       CW_USEDEFAULT, CW_USEDEFAULT,    // Taille
+                       NULL,                            // Handle
+                       NULL,                            // Handle du menu
+                       hInstance,    // Handle de l'instance de l'application
+                       NULL          // param additionnel
+        );
 
     if(hwnd == NULL)
         return 0;

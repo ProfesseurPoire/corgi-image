@@ -7,7 +7,7 @@ namespace corgi::image
 
 bool raster_image::almost_equal(const raster_image& img1,
                                 const raster_image& img2,
-                                int                 threshold)
+                                int)
 {
 
     if(img1.width() != img2.width())

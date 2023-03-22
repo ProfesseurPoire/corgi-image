@@ -85,7 +85,7 @@ public:
         center    // New pixels are added to the top and down side of the image
     };
 
-    /**
+        /**
      * @brief   Constructs a new raster image with the given dimension and
      *          pixel_format. All pixel are set to 0
      */
