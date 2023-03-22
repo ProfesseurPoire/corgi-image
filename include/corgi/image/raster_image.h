@@ -1,14 +1,22 @@
 #pragma once
 
-#include <bitset>
 #include <vector>
 
-// Needed for the spaceship operator apparently, maybe not lighted up because
-// vector probably has it too
+// Needed for the spaceship operator
 #include <compare>
 
 namespace corgi::image
 {
+
+/**
+ * @brief Most common pixel format, just to make the whole thing easier to use
+ */
+enum class pixel_format
+{
+    rgba_32,
+    rgb_24
+};
+
 /**
  * @brief   Represents an image composed of an array of pixels.
  *
@@ -31,36 +39,30 @@ namespace corgi::image
 class raster_image
 {
 public:
+    /**
+     * @brief   Structure created by the pixel class to make it easier to access
+     *          or manipulate pixel data when working on a rgba pixel encoded on
+     *          32bits
+     */
     struct rgba_32_pixel
     {
         unsigned char r, g, b, a;
     };
 
+    /**
+     * @brief   Structure created by the pixel class to make it easier to access
+     *          or manipulate pixel data when working on a rgb pixel encoded on
+     *          24 bits
+     */
     struct rgb_24_pixel
     {
         unsigned char r, g, b;
     };
-    // would be nice to have the usual pixels though but I'm not really sure how
-    // to handle that
-    class pixel
-    {
-        /**
-         * @brief Converts the pixel in rgba 32 bitsPerPixel format
-         */
-        rgba_32_pixel as_rgba_32();
-
-        /**
-         * @brief Converts the pixel in rgb 24 bitsPerPixel format
-         */
-        rgb_24_pixel as_rgb_24();
-
-        int                color_channel_count_ {0};
-        int                bits_per_pixel_ {0};
-        std::vector<bool>* data_ {};
-    };
 
     /**
-     *@brief    Checks whether 2 images are almost equals
+     * @brief   Checks whether 2 images are almost equals
+     *
+     *          The
      */
     static bool almost_equal(const raster_image& img1,
                              const raster_image& img2,
@@ -84,26 +86,41 @@ public:
     };
 
     /**
-     * @brief   Creates a new raster image with all pixel channel set to 0
-     */
-    raster_image(int width,
-                 int height,
-                 int color_channel_count,
-                 int bits_per_color_channel);
-
-    /**
-     * @brief   Creates a raster image where every pixels equals @p pix
+     * @brief   Constructs a new raster image with all pixel channel set to 0
      */
     raster_image(int   width,
                  int   height,
-                 int   color_channel_count,
-                 int   bits_per_channel,
-                 pixel pix);
+                 short color_channel_count,
+                 short bits_per_color_channel);
+
+    /**
+     * @brief   Constructs a new raster image with the given dimension and
+     *          pixel_format. All pixel are set to 0
+     */
+    raster_image(int width, int height, pixel_format pixel_format);
+
+    /**
+     * @brief   Constructs a new raster image using the implied pixel format
+     *          from @p pixel and fill it with copy of @p pixel
+     */
+    raster_image(int width, int height, rgb_24_pixel pixel);
+
+    /**
+     * @brief   Constructs a new raster image using the implied pixel format
+     *          from @p pixel and fill it with a copy of @p pixel
+     */
+    raster_image(int width, int height, rgba_32_pixel pixel);
 
     /**
      * @brief   Returns the image's width
      */
     int width() const;
+
+    rgba_32_pixel get_rgba_32_pixel(int index);
+    rgb_24_pixel  get_rgb_24_pixel(int index);
+
+    void set_pixel(rgba_32_pixel pixel, int index);
+    void set_pixel(rgb_24_pixel pixel, int index);
 
     /**
      * @brief   Resize the image in width
@@ -143,37 +160,13 @@ public:
      */
     short color_channel_count() const;
 
-    // Well that's a solution, but I'd still
-
-    class iterator
-    {
-    public:
-        iterator& operator++();
-        pixel&    operator*();
-        iterator& operator+();
-        pixel*    operator->();
-
-        friend bool operator==(const iterator& it1, const iterator& it2);
-        friend std::partial_ordering operator<=>(const iterator& it1,
-                                                 const iterator& it2);
-
-        raster_image* raster_image_ {nullptr};
-        int           current_pixel_index_ {0};
-    };
-
-    iterator begin();
-    iterator end();
-
-    iterator cbegin() const;
-    iterator cend() const;
-
-    void* data();
+    std::byte* data();
 
 private:
     /**
      * @brief   Image data
      */
-    std::vector<bool> data_;
+    std::vector<std::byte> data_;
 
     int width_;
     /**
@@ -199,15 +192,9 @@ private:
     short bits_per_color_channel_;
 
     friend bool operator==(const raster_image& img1, const raster_image& img2);
-    friend int  operator<=>(const raster_image& img1, const raster_image& img2);
+    friend bool operator!=(const raster_image& img1, const raster_image& img2);
 };
 
-bool operator==(const raster_image::iterator& it1,
-                const raster_image::iterator& it2);
-
-std::partial_ordering operator<=>(const raster_image::iterator& it1,
-                                  const raster_image::iterator& it2);
-
 bool operator==(const raster_image& img1, const raster_image& img2);
-int  operator<=>(const raster_image& img1, const raster_image& img2);
+bool operator!=(const raster_image& img1, const raster_image& img2);
 }    // namespace corgi::image

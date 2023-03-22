@@ -25,31 +25,31 @@ int WINAPI WinMain(HINSTANCE hInstance,
         pixels.push_back(0);
     }
 
-    // Nom de la classe de la fenêtre
+    // Nom de la classe de la fenï¿½tre
     const char CLASS_NAME[] = "corgi-image tests";
 
-    // Structure de la fenêtre
+    // Structure de la fenï¿½tre
     WNDCLASS wc = {};
 
     wc.lpfnWndProc   = WindowProc;
     wc.hInstance     = hInstance;
     wc.lpszClassName = CLASS_NAME;
 
-    // Enregistrement de la classe de la fenêtre
+    // Enregistrement de la classe de la fenï¿½tre
     RegisterClass(&wc);
 
-    // Création de la fenêtre
+    // Crï¿½ation de la fenï¿½tre
     HWND hwnd = CreateWindowEx(
-        0,                               // Style de la fenêtre
-        CLASS_NAME,                      // Nom de la classe de la fenêtre
-        "corgi-image tests",             // Titre de la fenêtre
-        WS_OVERLAPPEDWINDOW,             // Style de la fenêtre
-        CW_USEDEFAULT, CW_USEDEFAULT,    // Position de la fenêtre
-        CW_USEDEFAULT, CW_USEDEFAULT,    // Taille de la fenêtre
-        NULL,                            // Handle de la fenêtre parent
-        NULL,                            // Handle du menu de la fenêtre
+        0,                               // Style de la fenï¿½tre
+        CLASS_NAME,                      // Nom de la classe de la fenï¿½tre
+        "corgi-image tests",             // Titre de la fenï¿½tre
+        WS_OVERLAPPEDWINDOW,             // Style de la fenï¿½tre
+        CW_USEDEFAULT, CW_USEDEFAULT,    // Position de la fenï¿½tre
+        CW_USEDEFAULT, CW_USEDEFAULT,    // Taille de la fenï¿½tre
+        NULL,                            // Handle de la fenï¿½tre parent
+        NULL,                            // Handle du menu de la fenï¿½tre
         hInstance,    // Handle de l'instance de l'application
-        NULL          // Paramètre additionnel
+        NULL          // Paramï¿½tre additionnel
     );
 
     if(hwnd == NULL)
