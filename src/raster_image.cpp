@@ -1,15 +1,81 @@
 #include "corgi/image/raster_image.h"
 
+#include <corgi/binary/binary.h>
+
 #include <cmath>
 
 namespace corgi::image
 {
 
+color::color(int                           channel_count,
+             int                           bits_per_channel,
+             corgi::binary::dynamic_bitset bs)
+{
+    if(channel_count * bits_per_channel != bs.size())
+        throw std::invalid_argument(
+            "dynamic_bitset size doesn't match channel_count and "
+            "bits_per_channel arguments");
+    data_ = std::move(bs);
+}
+
+rgba32_color::rgba32_color(unsigned char r,
+                           unsigned char g,
+                           unsigned char b,
+                           unsigned char a)
+    : color_(4, 8)
+{
+}
+
+unsigned char rgba32_color::r() const
+{
+    return color_.data_.data()[0];
+}
+
+unsigned char rgba32_color::g() const
+{
+    return color_.data_.data()[1];
+}
+
+unsigned char rgba32_color::b() const
+{
+    return color_.data_.data()[2];
+}
+
+unsigned char rgba32_color::a() const
+{
+    return color_.data_.data()[3];
+}
+
+void rgba32_color::r(unsigned char val)
+{
+    color_.data_.data()[0] = val;
+}
+
+void rgba32_color::g(unsigned char val)
+{
+    color_.data_.data()[1] = val;
+}
+void rgba32_color::b(unsigned char val)
+{
+    color_.data_.data()[2] = val;
+}
+
+void rgba32_color::a(unsigned char val)
+{
+    color_.data_.data()[3] = val;
+}
+
+color::color(int channel_count, int bits_per_channel)
+    : channel_count_(channel_count)
+    , bits_per_channel_(bits_per_channel)
+{
+    data_ = corgi::binary::dynamic_bitset(channel_count_ * bits_per_channel_);
+}
+
 bool raster_image::almost_equal(const raster_image& img1,
                                 const raster_image& img2,
-                                int)
+                                int                 threshold)
 {
-
     if(img1.width() != img2.width())
         return false;
 
@@ -22,15 +88,24 @@ bool raster_image::almost_equal(const raster_image& img1,
     if(img1.color_channel_count() != img2.color_channel_count())
         return false;
 
+    auto d1 = img1.data_;
+    auto d2 = img2.data_;
+
+    auto bpp = img1.bits_per_pixel();
+
     for(int i = 0; i < img1.size(); i++)
     {
-        // Ok now the hardest part because I don't really know how to test 2
-        // pixels
-        // And to be honest I'm considering having only rgb 32 and rgba 32
-        // images instead of trying to work with everything, 1 bits image are
-        // pretty rare but well.
-    }
+        const auto p1 = binary::bits_to_llong(
+            bpp * i, bpp, reinterpret_cast<unsigned char*>(d1.data()),
+            static_cast<int>(std::ceilf(img1.size() * bpp / 8)));
 
+        const auto p2 = binary::bits_to_llong(
+            bpp * i, bpp, reinterpret_cast<unsigned char*>(d2.data()),
+            static_cast<int>(std::ceilf(img2.size() * bpp / 8)));
+
+        if(std::abs(p2 - p1) > threshold)
+            return false;
+    }
     return true;
 }
 

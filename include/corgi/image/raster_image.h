@@ -1,9 +1,8 @@
 #pragma once
 
-#include <vector>
+#include <corgi/binary/dynamic_bitset.h>
 
-// Needed for the spaceship operator
-#include <compare>
+#include <vector>
 
 namespace corgi::image
 {
@@ -15,6 +14,73 @@ enum class pixel_format
 {
     rgba_32,
     rgb_24
+};
+
+struct rgba32_color;
+
+/**
+ * @brief Very barebone for now
+ */
+struct color
+{
+    /**
+     * @brief Constructs a new empty color
+     */
+    color(int channel_count, int bits_per_channel);
+
+    /**
+     * @brief Construct a new color using given bitset
+     *
+     * @throws std::invalid_argument Thrown if channel_count*bits_per_channel
+     * isn't equal to @p bs.size()
+     */
+    color(int                           channel_count,
+          int                           bits_per_channel,
+          corgi::binary::dynamic_bitset bs);
+
+    // I probably should turn that private later on
+    // but for now that will work
+    int                           channel_count_;
+    int                           bits_per_channel_;
+    corgi::binary::dynamic_bitset data_;
+
+    rgba32_color as_rgba32();
+};
+
+/**
+ * @brief Represents a color with rgba32 format
+ */
+struct rgba32_color
+{
+    friend struct color;
+
+    rgba32_color(unsigned char r,
+                 unsigned char g,
+                 unsigned char b,
+                 unsigned char a);
+
+    /**
+     * @brief Constructs a new rgba32_color from the given bitset
+     */
+    rgba32_color(corgi::binary::dynamic_bitset bs);
+
+    unsigned char r() const;
+    unsigned char g() const;
+    unsigned char b() const;
+    unsigned char a() const;
+
+    void r(unsigned char val);
+    void g(unsigned char val);
+    void b(unsigned char val);
+    void a(unsigned char val);
+
+    /**
+     * @brief Returns the color used to represents rgba32
+     */
+    const image::color& color() const;
+
+private:
+    image::color color_;
 };
 
 /**
@@ -40,26 +106,6 @@ class raster_image
 {
 public:
     /**
-     * @brief   Structure created by the pixel class to make it easier to access
-     *          or manipulate pixel data when working on a rgba pixel encoded on
-     *          32bits
-     */
-    struct rgba_32_pixel
-    {
-        unsigned char r, g, b, a;
-    };
-
-    /**
-     * @brief   Structure created by the pixel class to make it easier to access
-     *          or manipulate pixel data when working on a rgb pixel encoded on
-     *          24 bits
-     */
-    struct rgb_24_pixel
-    {
-        unsigned char r, g, b;
-    };
-
-    /**
      * @brief   Checks whether 2 images are almost equals
      *
      *          The
@@ -68,6 +114,7 @@ public:
                              const raster_image& img2,
                              int                 threshold);
 
+    friend class pixel;
     enum class width_resize_mode
     {
         stretch,    // The image is stretched to fill the new width
@@ -85,7 +132,7 @@ public:
         center    // New pixels are added to the top and down side of the image
     };
 
-        /**
+    /**
      * @brief   Constructs a new raster image with the given dimension and
      *          pixel_format. All pixel are set to 0
      */
@@ -101,7 +148,7 @@ public:
      * @brief   Constructs a new raster image using the implied pixel format
      *          from @p pixel and fill it with a copy of @p pixel
      */
-    raster_image(int width, int height, rgba_32_pixel pixel);
+    raster_image(int width, int height, rgba32_color color);
 
     /**
      * @brief   Gets how many pixels make the raster image
@@ -113,11 +160,15 @@ public:
      */
     int width() const;
 
-    rgba_32_pixel get_rgba_32_pixel(int index);
-    rgb_24_pixel  get_rgb_24_pixel(int index);
+    /**
+     * @brief Get the pixel color at @p pos
+     */
+    color get_pixel(int pos);
 
-    void set_pixel(rgba_32_pixel pixel, int index);
-    void set_pixel(rgb_24_pixel pixel, int index);
+    /**
+     * @brief Sets the pixel at @p index
+     */
+    void set_pixel(color color, int pos);
 
     /**
      * @brief   Resize the image in width
@@ -165,7 +216,7 @@ private:
     /**
      * @brief   Image data
      */
-    std::vector<std::byte> data_;
+    corgi::binary::dynamic_bitset data_;
 
     int width_;
     /**

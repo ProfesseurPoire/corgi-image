@@ -1,4 +1,4 @@
-#include <corgi/image/binary.h>
+#include <corgi/binary/binary.h>
 #include <corgi/image/raster_image.h>
 #include <corgi/test/test.h>
 #include <windows.h>
@@ -19,30 +19,6 @@ int WINAPI WinMain(HINSTANCE hInstance,
                    LPSTR     lpCmdLine,
                    int       nCmdShow)
 {
-
-    corgi::test::add_test(
-        "corgi-binary", "check_bit",
-        []() -> void
-        {
-            int r = 0b00000000000000111011100111110111;
-
-            int v = 0b11111111111110111001111101111101;
-            assert_that(corgi::binary::get_bit(
-                            0, reinterpret_cast<unsigned char*>(&v), 4),
-                        corgi::test::equals(1));
-            assert_that(corgi::binary::get_bit(
-                            1, reinterpret_cast<unsigned char*>(&v), 4),
-                        corgi::test::equals(0));
-
-            auto result = corgi::binary::get_binary_value(
-                4, 18, reinterpret_cast<unsigned char*>(&v), 4);
-
-            assert_that(result, corgi::test::equals(static_cast<long long>(r)));
-        }
-
-    );
-
-    corgi::test::run_all();
 
     for(int i = 0; i < 16; i++)
     {
