@@ -1,1 +1,1 @@
-target_sources(${PROJECT_NAME} PRIVATE image.cpp   "../include/corgi/image/raster_image.h" "raster_image.cpp" pixel.cpp)
+target_sources(${PROJECT_NAME} PRIVATE image.cpp   "../include/corgi/image/raster_image.h" "raster_image.cpp" pixel.cpp color.cpp)
