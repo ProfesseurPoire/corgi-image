@@ -1,7 +1,13 @@
 #include "corgi/image/raster_image.h"
 
+#include "corgi/image/stb_image.h"
+
 #include <cmath>
 #include <stdexcept>
+
+#ifndef STB_IMAGE_IMPLEMENTATION
+#    define STB_IMAGE_IMPLEMENTATION
+#endif
 
 namespace corgi::image
 {
@@ -36,6 +42,10 @@ bool raster_image::almost_equal(const raster_image& img1,
     return true;
 }
 
+color_format raster_image::format() const noexcept
+{
+    return format_;
+}
 raster_image::raster_image(int width, int height, color_format format)
     : width_(width)
     , height_(height)
@@ -54,6 +64,17 @@ raster_image::raster_image(int width, int height, color_format format)
             break;
     }
     init_data();
+}
+
+raster_image::raster_image(const std::string& path)
+{
+    // Images are horizontal on OpenGL otherwise
+    stbi_set_flip_vertically_on_load(true);
+    auto data = stbi_load(path.c_str(), &width_, &height_,
+                          &color_channel_count_, STBI_rgb_alpha);
+
+    data_ = std::vector<unsigned char>(data, data + width_ * height_ *
+                                                        color_channel_count_);
 }
 
 int raster_image::size() const
@@ -106,6 +127,8 @@ color raster_image::get_pixel(std::size_t pos) const
                          data_[pos * 3 + 2]);
             break;
     }
+
+    throw std::exception("no format");
 }
 
 unsigned char* raster_image::data()

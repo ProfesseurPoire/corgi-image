@@ -2,6 +2,7 @@
 
 #include <corgi/image/color.h>
 
+#include <string>
 #include <vector>
 namespace corgi::image
 {
@@ -68,6 +69,15 @@ public:
     raster_image(int          width,
                  int          height,
                  color_format pixel_format = color_format::rgba);
+
+    /**
+     * @brief Constructs a new image by loading the file located at @p path
+     *
+     * This will be very limited at the start
+     *
+     * @param path The path to the file that contains the image
+     */
+    explicit raster_image(const std::string& path);
 
     /**
      * @brief   Gets how many pixels make the raster image
@@ -158,7 +168,7 @@ private:
      *          3 = RGB
      *          4 = RGBA
      */
-    short color_channel_count_;
+    int color_channel_count_;
 
     /**
      * @brief   Channel size in bits
