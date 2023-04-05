@@ -1,3 +1,4 @@
+#include <SDL2/SDL.h>
 #include <corgi/image/raster_image.h>
 #include <corgi/test/test.h>
 #include <windows.h>
@@ -6,110 +7,78 @@
 
 using namespace corgi::image;
 
-raster_image img = raster_image(100, 100, corgi::image::color_format::rgba);
+raster_image img  = raster_image("resources/corgi.jpg");
+raster_image img2 = raster_image(100, 100, corgi::image::color_format::rgba);
 
-// Callback function for the current win32 window
-LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-
-static std::vector<unsigned char> pixels;
-
-int WINAPI WinMain(HINSTANCE hInstance,
-                   HINSTANCE hPrevInstance,
-                   LPSTR     lpCmdLine,
-                   int       nCmdShow)
+int main(int argc, char** argv)
 {
-
-    for(int i = 0; i < 16; i++)
+    if(SDL_Init(SDL_INIT_VIDEO) < 0)
     {
-        pixels.push_back(255);
-        pixels.push_back(0);
-        pixels.push_back(0);
-    }
-
-    // Nom de la classe de la window
-    const char CLASS_NAME[] = "corgi-image tests";
-
-    // Structure de la window
-    WNDCLASS wc = {};
-
-    wc.lpfnWndProc   = WindowProc;
-    wc.hInstance     = hInstance;
-    wc.lpszClassName = CLASS_NAME;
-
-    RegisterClass(&wc);
-
-    HWND hwnd =
-        CreateWindowEx(0,                               // Style
-                       CLASS_NAME,                      // Nom de la classe
-                       "corgi-image tests",             // Titre
-                       WS_OVERLAPPEDWINDOW,             // Style
-                       CW_USEDEFAULT, CW_USEDEFAULT,    // Position
-                       CW_USEDEFAULT, CW_USEDEFAULT,    // Taille
-                       NULL,                            // Handle
-                       NULL,                            // Handle du menu
-                       hInstance,    // Handle de l'instance de l'application
-                       NULL          // param additionnel
-        );
-
-    if(hwnd == NULL)
+        std::cout << "Failed to initialize the SDL2 library\n";
         return 0;
-
-    ShowWindow(hwnd, nCmdShow);
-
-    MSG msg = {};
-    while(GetMessage(&msg, NULL, 0, 0))
-    {
-        TranslateMessage(&msg);
-        DispatchMessage(&msg);
     }
-    return 0;
-}
+    auto window =
+        SDL_CreateWindow("SDL2 Window", SDL_WINDOWPOS_CENTERED,
+                         SDL_WINDOWPOS_CENTERED, img.width(), img.height(), 0);
 
-LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
-{
-    switch(uMsg)
+    if(!window)
     {
-        case WM_DESTROY:
-            PostQuitMessage(0);
-            return 0;
-
-        case WM_PAINT:
-
-            PAINTSTRUCT ps;
-
-            HDC hdc    = BeginPaint(hwnd, &ps);
-            HDC hdcMem = CreateCompatibleDC(hdc);
-
-            BITMAPINFO bminfo;
-
-            RECT rect;
-            GetClientRect(hwnd, &rect);
-
-            HBITMAP bm = CreateCompatibleBitmap(hdc, img.width(), img.height());
-            HGDIOBJ hOld = SelectObject(hdcMem, bm);
-
-            bminfo.bmiHeader.biSize          = sizeof(bminfo.bmiHeader);
-            bminfo.bmiHeader.biWidth         = img.width();
-            bminfo.bmiHeader.biHeight        = img.height();
-            bminfo.bmiHeader.biPlanes        = 1;    // must always be 1
-            bminfo.bmiHeader.biBitCount      = img.bits_per_pixel();
-            bminfo.bmiHeader.biCompression   = BI_RGB;
-            bminfo.bmiHeader.biSizeImage     = 0;
-            bminfo.bmiHeader.biXPelsPerMeter = 1;
-            bminfo.bmiHeader.biYPelsPerMeter = 1;
-            bminfo.bmiHeader.biClrUsed       = 0;
-            bminfo.bmiHeader.biClrImportant  = 0;
-
-            SetDIBits(hdcMem, bm, 0, img.height(), img.data(), &bminfo,
-                      DIB_RGB_COLORS);
-
-            BitBlt(hdc, 0, 0, img.width(), img.height(), hdcMem, 0, 0, SRCCOPY);
-            DeleteDC(hdcMem);
-
-            // Fin du dessin
-            EndPaint(hwnd, &ps);
-            return 0;
+        std::cout << "Failed to create window\n";
+        return 0;
     }
 
-    return DefWindowProc(hwnd, uMsg, wParam, lParam);
+    auto renderer = SDL_CreateRenderer(
+        window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+
+    SDL_GetWindowSurface(window);
+
+    auto pitch = img.width() * img.color_channel_count();
+
+    auto surface = SDL_CreateRGBSurfaceWithFormatFrom(
+        img.data(), img.width(), img.height(), img.bits_per_pixel(), pitch,
+        SDL_PIXELFORMAT_RGB888);
+
+    char error[200];
+    int  size;
+    SDL_GetErrorMsg(error, 200);
+    std::cout << error << std::endl;
+
+    SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+
+    // So the texture generated is using SDL_PIXELFORMAT_ARGB8888
+
+    Uint32 fo;
+    int    w;
+    int    h;
+    int    a;
+
+    SDL_QueryTexture(texture, &fo, &a, &w, &h);
+    SDL_Rect source;
+    source.h = img.height();
+    source.w = img.width();
+    source.x = 0;
+    source.y = 0;
+
+    bool keep_window_open = true;
+
+    while(keep_window_open)
+    {
+        SDL_Event e;
+        while(SDL_PollEvent(&e) > 0)
+        {
+            switch(e.type)
+            {
+                case SDL_QUIT:
+                    keep_window_open = false;
+                    break;
+            }
+        }
+
+        SDL_SetRenderDrawColor(renderer, 110, 110, 130, 230);
+        SDL_RenderClear(renderer);
+
+        SDL_RenderCopy(renderer, texture, &source, &source);
+
+        SDL_RenderPresent(renderer);
+    }
 }

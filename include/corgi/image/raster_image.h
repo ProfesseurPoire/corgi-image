@@ -127,17 +127,17 @@ public:
     /**
      * @brief   Computes how many bits are used for 1 pixel.
      */
-    short bits_per_pixel() const;
+    int bits_per_pixel() const;
 
     /**
      * @brief   Gets how many bits are used per channel for the image
      */
-    short bits_per_color_channel() const;
+    int bits_per_color_channel() const;
 
     /**
      * @brief   Gets how many color channel the image is made of
      */
-    short color_channel_count() const;
+    int color_channel_count() const;
 
     /**
      * @brief Gets the image's color/pixel format
@@ -175,7 +175,7 @@ private:
      *
      *          Images usually uses 8 bits per channel (1 byte)
      */
-    short bits_per_color_channel_;
+    int bits_per_color_channel_;
 
     color_format format_;
 

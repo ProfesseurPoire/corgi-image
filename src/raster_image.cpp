@@ -1,13 +1,14 @@
 #include "corgi/image/raster_image.h"
 
-#include "corgi/image/stb_image.h"
-
-#include <cmath>
-#include <stdexcept>
-
 #ifndef STB_IMAGE_IMPLEMENTATION
 #    define STB_IMAGE_IMPLEMENTATION
 #endif
+#pragma warning(push, 0)
+#include "corgi/image/stb_image.h"
+#pragma warning(pop)
+
+#include <cmath>
+#include <stdexcept>
 
 namespace corgi::image
 {
@@ -71,10 +72,19 @@ raster_image::raster_image(const std::string& path)
     // Images are horizontal on OpenGL otherwise
     stbi_set_flip_vertically_on_load(true);
     auto data = stbi_load(path.c_str(), &width_, &height_,
-                          &color_channel_count_, STBI_rgb_alpha);
+                          &color_channel_count_, STBI_rgb);
 
-    data_ = std::vector<unsigned char>(data, data + width_ * height_ *
-                                                        color_channel_count_);
+    if(color_channel_count_ == 3)
+    {
+        format_ = color_format::rgb;
+    }
+    else
+        format_ = color_format::rgba;
+
+    bits_per_color_channel_ = 8;
+
+    data_ = std::vector<unsigned char>(
+        data, data + (width_ * height_ * color_channel_count_));
 }
 
 int raster_image::size() const
@@ -96,17 +106,17 @@ int raster_image::height() const
 
 void raster_image::height(int, height_resize_mode) {}
 
-short raster_image::bits_per_pixel() const
+int raster_image::bits_per_pixel() const
 {
     return color_channel_count_ * bits_per_color_channel_;
 }
 
-short raster_image::bits_per_color_channel() const
+int raster_image::bits_per_color_channel() const
 {
     return bits_per_color_channel_;
 }
 
-short raster_image::color_channel_count() const
+int raster_image::color_channel_count() const
 {
     return color_channel_count_;
 }
