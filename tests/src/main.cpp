@@ -1,4 +1,3 @@
-#include <corgi/binary/binary.h>
 #include <corgi/image/raster_image.h>
 #include <corgi/test/test.h>
 #include <windows.h>
@@ -7,7 +6,7 @@
 
 using namespace corgi::image;
 
-raster_image img = raster_image(100, 100, corgi::image::pixel_format::rgba_32);
+raster_image img = raster_image(100, 100, corgi::image::color_format::rgba);
 
 // Callback function for the current win32 window
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);

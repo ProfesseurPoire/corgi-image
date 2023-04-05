@@ -15,10 +15,6 @@ endif()
 
 set_property(TARGET ${PROJECT_NAME}  PROPERTY CXX_STANDARD 20)
 
-find_package(corgi-binary CONFIG)
-
-target_link_libraries(${PROJECT_NAME} PUBLIC corgi-binary)
-
 target_include_directories(${PROJECT_NAME} PUBLIC 
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>)

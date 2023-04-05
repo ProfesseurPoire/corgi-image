@@ -2,27 +2,44 @@
 
 namespace corgi::image
 {
+enum class color_format
+{
+    rgba,
+    rgb
+};
+
 class color
 {
-    enum class format
-    {
-        rgba,
-        rgb
-    };
-
 public:
-    color(unsigned char r, unsigned char g, unsigned char b, unsigned char a);
-    color(unsigned char r, unsigned char g, unsigned char b);
+    color(unsigned char red,
+          unsigned char green,
+          unsigned char blue,
+          unsigned char alpha);
 
-    unsigned char r() const noexcept;
-    unsigned char g() const noexcept;
-    unsigned char b() const noexcept;
-    unsigned char a() const noexcept;
+    color(unsigned char red, unsigned char green, unsigned char blue);
 
-    void r(unsigned char val);
-    void g(unsigned char val);
-    void b(unsigned char val);
-    void a(unsigned char val);
+    unsigned char red() const noexcept;
+    unsigned char green() const noexcept;
+    unsigned char blue() const noexcept;
+
+    /**
+     * @brief Returns the alpha value
+     * @throws std::logic_error Thrown if current color doesn't have an alpha
+     * channel
+     */
+    unsigned char alpha() const noexcept;
+
+    color_format format() const noexcept;
+
+    void red(unsigned char val);
+    void green(unsigned char val);
+    void blue(unsigned char val);
+    void alpha(unsigned char val);
+
+    /**
+     * @brief Computes the sum of every channel
+     */
+    int sum() const noexcept;
 
 private:
     unsigned char red_;
@@ -30,7 +47,6 @@ private:
     unsigned char blue_;
     unsigned char alpha_;
 
-    // How can I know that I don't the alpha channel?
-    int color_channel_count_ = 3;
+    color_format format_;
 };
 };    // namespace corgi::image

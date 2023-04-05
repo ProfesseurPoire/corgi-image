@@ -1,87 +1,10 @@
 #pragma once
 
-#include <corgi/binary/dynamic_bitset.h>
+#include <corgi/image/color.h>
 
 #include <vector>
-
 namespace corgi::image
 {
-
-/**
- * @brief Most common pixel format, just to make the whole thing easier to use
- */
-enum class pixel_format
-{
-    rgba_32,
-    rgb_24
-};
-
-struct rgba32_color;
-
-/**
- * @brief Very barebone for now
- */
-struct color
-{
-    /**
-     * @brief Constructs a new empty color
-     */
-    color(int channel_count, int bits_per_channel);
-
-    /**
-     * @brief Construct a new color using given bitset
-     *
-     * @throws std::invalid_argument Thrown if channel_count*bits_per_channel
-     * isn't equal to @p bs.size()
-     */
-    color(int                           channel_count,
-          int                           bits_per_channel,
-          corgi::binary::dynamic_bitset bs);
-
-    // I probably should turn that private later on
-    // but for now that will work
-    int                           channel_count_;
-    int                           bits_per_channel_;
-    corgi::binary::dynamic_bitset data_;
-
-    rgba32_color as_rgba32();
-};
-
-/**
- * @brief Represents a color with rgba32 format
- */
-struct rgba32_color
-{
-    friend struct color;
-
-    rgba32_color(unsigned char r,
-                 unsigned char g,
-                 unsigned char b,
-                 unsigned char a);
-
-    /**
-     * @brief Constructs a new rgba32_color from the given bitset
-     */
-    rgba32_color(corgi::binary::dynamic_bitset bs);
-
-    unsigned char r() const;
-    unsigned char g() const;
-    unsigned char b() const;
-    unsigned char a() const;
-
-    void r(unsigned char val);
-    void g(unsigned char val);
-    void b(unsigned char val);
-    void a(unsigned char val);
-
-    /**
-     * @brief Returns the color used to represents rgba32
-     */
-    const image::color& color() const;
-
-private:
-    image::color color_;
-};
 
 /**
  * @brief   Represents an image composed of an array of pixels.
@@ -106,15 +29,21 @@ class raster_image
 {
 public:
     /**
-     * @brief   Checks whether 2 images are almost equals
+     * @brief Checks whether 2 images are almost equals
+     * The function inspect every pixel. If the "value"(sum of components) of
+     * a pixel from img1 is greater than the value of img2 + threshold, then
+     * the test fails
      *
-     *          The
+     *
+     * @param img1 First image being compared
+     * @param img2 Second image being compared
+     * @param threshold Max difference between a pixel of img1 and img2
+     * authorized
      */
     static bool almost_equal(const raster_image& img1,
                              const raster_image& img2,
                              int                 threshold);
 
-    friend class pixel;
     enum class width_resize_mode
     {
         stretch,    // The image is stretched to fill the new width
@@ -136,19 +65,9 @@ public:
      * @brief   Constructs a new raster image with the given dimension and
      *          pixel_format. All pixel are set to 0
      */
-    raster_image(int width, int height, pixel_format pixel_format);
-
-    /**
-     * @brief   Constructs a new raster image using the implied pixel format
-     *          from @p pixel and fill it with copy of @p pixel
-     */
-    raster_image(int width, int height, rgb_24_pixel pixel);
-
-    /**
-     * @brief   Constructs a new raster image using the implied pixel format
-     *          from @p pixel and fill it with a copy of @p pixel
-     */
-    raster_image(int width, int height, rgba32_color color);
+    raster_image(int          width,
+                 int          height,
+                 color_format pixel_format = color_format::rgba);
 
     /**
      * @brief   Gets how many pixels make the raster image
@@ -162,8 +81,10 @@ public:
 
     /**
      * @brief Get the pixel color at @p pos
+     *
+     * @throws std::out_of_range Thrown if @p pos is out of the image's range
      */
-    color get_pixel(int pos);
+    color get_pixel(std::size_t pos) const;
 
     /**
      * @brief Sets the pixel at @p index
@@ -208,7 +129,12 @@ public:
      */
     short color_channel_count() const;
 
-    std::byte* data();
+    /**
+     * @brief Gets the image's color/pixel format
+     */
+    color_format format() const noexcept;
+
+    unsigned char* data();
 
 private:
     void init_data();
@@ -216,7 +142,7 @@ private:
     /**
      * @brief   Image data
      */
-    corgi::binary::dynamic_bitset data_;
+    std::vector<unsigned char> data_;
 
     int width_;
     /**
@@ -240,6 +166,8 @@ private:
      *          Images usually uses 8 bits per channel (1 byte)
      */
     short bits_per_color_channel_;
+
+    color_format format_;
 
     friend bool operator==(const raster_image& img1, const raster_image& img2);
     friend bool operator!=(const raster_image& img1, const raster_image& img2);
