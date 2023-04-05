@@ -19,9 +19,6 @@ target_include_directories(${PROJECT_NAME} PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>)
 
-
-
-
 add_subdirectory(src)
 
 # Targets we want to export and where
@@ -61,3 +58,8 @@ if(BUILD_TESTS)
 enable_testing()
 add_subdirectory(tests)
 endif()
+
+
+add_subdirectory(example)
+
+

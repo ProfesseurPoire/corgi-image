@@ -2,6 +2,7 @@
 
 #include <corgi/image/color.h>
 
+#include <iostream>
 #include <string>
 #include <vector>
 namespace corgi::image
@@ -116,6 +117,11 @@ public:
     int height() const;
 
     /**
+     * @brief Saves the current image to the given file
+     */
+    void save(const std::string& file);
+
+    /**
      * @brief   Resize the the image on the x axis
      *
      * @param new_height    Image's new height
@@ -144,7 +150,8 @@ public:
      */
     color_format format() const noexcept;
 
-    unsigned char* data();
+    unsigned char*       data();
+    friend std::ostream& operator<<(std::ostream& os, const raster_image& img);
 
 private:
     void init_data();
@@ -179,10 +186,16 @@ private:
 
     color_format format_;
 
-    friend bool operator==(const raster_image& img1, const raster_image& img2);
-    friend bool operator!=(const raster_image& img1, const raster_image& img2);
+    friend bool operator==(const raster_image& lhs, const raster_image& rhs);
+    friend bool operator!=(const raster_image& lhs, const raster_image& rhs);
 };
 
-bool operator==(const raster_image& img1, const raster_image& img2);
-bool operator!=(const raster_image& img1, const raster_image& img2);
+bool operator==(const raster_image& lhs, const raster_image& rhs);
+bool operator!=(const raster_image& lhs, const raster_image& rhs);
+
+inline std::ostream& operator<<(std::ostream& os, const raster_image& img)
+{
+    os << img.width() << std::endl;
+    return os;
+}
 }    // namespace corgi::image

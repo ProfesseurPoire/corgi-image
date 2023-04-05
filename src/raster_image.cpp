@@ -3,8 +3,14 @@
 #ifndef STB_IMAGE_IMPLEMENTATION
 #    define STB_IMAGE_IMPLEMENTATION
 #endif
+
+#ifndef STB_IMAGE_WRITE_IMPLEMENTATION
+#    define STB_IMAGE_WRITE_IMPLEMENTATION
+#endif
+
 #pragma warning(push, 0)
 #include "corgi/image/stb_image.h"
+#include "corgi/image/stb_image_write.h"
 #pragma warning(pop)
 
 #include <cmath>
@@ -43,6 +49,12 @@ bool raster_image::almost_equal(const raster_image& img1,
     return true;
 }
 
+void raster_image::save(const std::string& file)
+{
+    stbi_write_png(file.c_str(), width_, height_, color_channel_count_,
+                   data_.data(), 0);
+}
+
 color_format raster_image::format() const noexcept
 {
     return format_;
@@ -70,9 +82,9 @@ raster_image::raster_image(int width, int height, color_format format)
 raster_image::raster_image(const std::string& path)
 {
     // Images are horizontal on OpenGL otherwise
-    stbi_set_flip_vertically_on_load(true);
+    stbi_set_flip_vertically_on_load(false);
     auto data = stbi_load(path.c_str(), &width_, &height_,
-                          &color_channel_count_, STBI_rgb);
+                          &color_channel_count_, STBI_rgb_alpha);
 
     if(color_channel_count_ == 3)
     {
@@ -151,6 +163,26 @@ void raster_image::init_data()
     data_.resize(static_cast<int>(
         std::ceilf(bits_per_color_channel_ * color_channel_count_ * width_ *
                    height_ / 8.0F)));
+}
+
+bool operator==(const raster_image& lhs, const raster_image& rhs)
+{
+    if(lhs.width() != rhs.width())
+        return false;
+
+    if(lhs.height() != rhs.height())
+        return false;
+
+    if(lhs.color_channel_count() != rhs.color_channel_count())
+        return false;
+
+    if(lhs.data_ != rhs.data_)
+        return false;
+    return true;
+}
+bool operator!=(const raster_image& img1, const raster_image& img2)
+{
+    return !(img1 == img2);
 }
 
 }    // namespace corgi::image

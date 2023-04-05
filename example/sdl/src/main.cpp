@@ -7,7 +7,7 @@
 
 using namespace corgi::image;
 
-raster_image img  = raster_image("resources/corgi.jpg");
+raster_image img  = raster_image("resources/corgi.png");
 raster_image img2 = raster_image(100, 100, corgi::image::color_format::rgba);
 
 int main(int argc, char** argv)
@@ -34,14 +34,26 @@ int main(int argc, char** argv)
 
     auto pitch = img.width() * img.color_channel_count();
 
+    // Ok so I'm not too sure about this. Like in opengl it's RGBA and sdl
+    // it seems it's ABGR?
+    // Looks like its something related to little/big endians but I
+    // don't really get it yet. At least it kinda works.
+
     auto surface = SDL_CreateRGBSurfaceWithFormatFrom(
         img.data(), img.width(), img.height(), img.bits_per_pixel(), pitch,
-        SDL_PIXELFORMAT_RGB888);
+        SDL_PIXELFORMAT_ABGR8888);
 
-    char error[200];
-    int  size;
-    SDL_GetErrorMsg(error, 200);
-    std::cout << error << std::endl;
+    // I'll keep this here, it helps knowing which texture format
+    // are supported by SDL. surface needs to match one of this
+    SDL_RendererInfo info;
+    SDL_GetRendererInfo(renderer, &info);
+    std::cout << "Renderer name: " << info.name << std::endl;
+    std::cout << "Texture formats: " << std::endl;
+    for(Uint32 i = 0; i < info.num_texture_formats; i++)
+    {
+        std::cout << SDL_GetPixelFormatName(info.texture_formats[i])
+                  << std::endl;
+    }
 
     SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
 
