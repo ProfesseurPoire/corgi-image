@@ -20,3 +20,8 @@ add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD # Adds a post build event t
     COMMAND ${CMAKE_COMMAND} -E copy_directory # Executes the copy directory command
     "${CMAKE_CURRENT_SOURCE_DIR}/resources"
     $<TARGET_FILE_DIR:${PROJECT_NAME}>/resources)
+
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD # Adds a post build event to the given target
+    COMMAND ${CMAKE_COMMAND} -E copy_directory # Executes the copy directory command
+    "${CMAKE_CURRENT_SOURCE_DIR}/resources"
+    "${CMAKE_CURRENT_SOURCE_DIR}../../build/resources")
