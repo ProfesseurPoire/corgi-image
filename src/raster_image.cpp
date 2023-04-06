@@ -135,7 +135,7 @@ int raster_image::color_channel_count() const
 
 color raster_image::get_pixel(std::size_t pos) const
 {
-    if(pos >= width_ * height_)
+    if(static_cast<int>(pos) >= width_ * height_)
         throw std::out_of_range("Argument pos is out of range");
 
     switch(format_)
