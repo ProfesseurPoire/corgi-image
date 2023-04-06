@@ -21,5 +21,17 @@ int main(int argc, char** argv)
             check_equals(image, image2);
         });
 
+    corgi::test::add_test(
+        "corgi-image", "almost_equals",
+        []() -> void
+        {
+            auto img = corgi::image::raster_image("resources/corgi.png");
+            auto img2 =
+                corgi::image::raster_image("resources/corgi-edited.png");
+
+            check_equals(
+                corgi::image::raster_image::almost_equal(img, img2, 117), true);
+        });
+
     corgi::test::run_all();
 }
