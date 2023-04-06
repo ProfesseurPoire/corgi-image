@@ -13,7 +13,8 @@
 #include "corgi/image/stb_image_write.h"
 #pragma warning(pop)
 
-#include <cmath>
+#include <math.h>
+
 #include <stdexcept>
 
 namespace corgi::image
@@ -160,7 +161,7 @@ unsigned char* raster_image::data()
 
 void raster_image::init_data()
 {
-    data_.resize(static_cast<int>(std::ceilf(
+    data_.resize(static_cast<int>(ceilf(
         static_cast<float>(bits_per_color_channel_) *
         static_cast<float>(color_channel_count_) * static_cast<float>(width_) *
         static_cast<float>(height_) / 8.0F)));
