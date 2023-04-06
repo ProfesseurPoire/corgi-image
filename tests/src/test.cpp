@@ -26,6 +26,10 @@ int main(int argc, char** argv)
         []() -> void
         {
             std::cout << "load image 1" << std::endl;
+
+            std::cout << " Exist :"
+                      << std::filesystem::exists("resources/corgi.png")
+                      << std::endl;
             auto img = corgi::image::raster_image("resources/corgi.png");
 
             std::cout << "load image2" << std::endl;
