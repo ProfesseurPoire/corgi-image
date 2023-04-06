@@ -25,10 +25,14 @@ int main(int argc, char** argv)
         "corgi-image", "almost_equals",
         []() -> void
         {
+            std::cout << "load image 1" << std::endl;
             auto img = corgi::image::raster_image("resources/corgi.png");
+
+            std::cout << "load image2" << std::endl;
             auto img2 =
                 corgi::image::raster_image("resources/corgi-edited.png");
 
+            std::cout << "check equals" << std::endl;
             check_equals(
                 corgi::image::raster_image::almost_equal(img, img2, 117), true);
         });
