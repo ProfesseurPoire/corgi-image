@@ -72,6 +72,16 @@ public:
                  color_format pixel_format = color_format::rgba);
 
     /**
+     * @brief Constructs a new raster image from @p data
+     *
+     * Very volatile function.
+     */
+    raster_image(int                        width,
+                 int                        height,
+                 color_format               format,
+                 std::vector<unsigned char> data);
+
+    /**
      * @brief Constructs a new image by loading the file located at @p path
      *
      * This will be very limited at the start
