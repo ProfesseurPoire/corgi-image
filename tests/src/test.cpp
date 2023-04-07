@@ -11,12 +11,12 @@ int main(int argc, char** argv)
         "corgi-image", "save_and_load",
         []() -> void
         {
-            auto image = corgi::image::raster_image("resources/corgi.png");
+            auto image = corgi::image::raster_image("./resources/corgi.png");
 
-            std::filesystem::remove("resouces/corgi2.png");
-            image.save("resources/corgi2.png");
+            std::filesystem::remove("./resouces/corgi2.png");
+            image.save("./resources/corgi2.png");
 
-            auto image2 = corgi::image::raster_image("resources/corgi2.png");
+            auto image2 = corgi::image::raster_image("./resources/corgi2.png");
 
             check_equals(image, image2);
         });
@@ -28,13 +28,14 @@ int main(int argc, char** argv)
             std::cout << "load image 1" << std::endl;
 
             std::cout << " Exist :"
-                      << std::filesystem::exists("resources/corgi.png")
+                      << std::filesystem::exists("./resources/corgi.png")
                       << std::endl;
-            auto img = corgi::image::raster_image("resources/corgi.png");
+
+            auto img = corgi::image::raster_image("./resources/corgi.png");
 
             std::cout << "load image2" << std::endl;
             auto img2 =
-                corgi::image::raster_image("resources/corgi-edited.png");
+                corgi::image::raster_image("./resources/corgi-edited.png");
 
             std::cout << "check equals" << std::endl;
             check_equals(
