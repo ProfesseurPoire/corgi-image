@@ -3,9 +3,8 @@
 #include <iostream>
 namespace corgi
 {
-
 void image()
 {
-	std::cout<<"Hello There!"<<std::endl;
+    std::cout << "Hello There!" << std::endl;
 }
-}
+}    // namespace corgi

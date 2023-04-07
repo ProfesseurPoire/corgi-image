@@ -10,7 +10,7 @@ add_library(${PROJECT_NAME} STATIC "")
 if(MSVC)
 target_compile_options(${PROJECT_NAME} PRIVATE -W4 -WX)
 else()
-target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Werror)
+target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Werror -Wno-deprecated -Wno-unknown-pragmas)
 endif()
 
 set_property(TARGET ${PROJECT_NAME}  PROPERTY CXX_STANDARD 20)
@@ -50,9 +50,6 @@ install(FILES
           "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
         DESTINATION lib/cmake/${PROJECT_NAME}
 )
-
-
-
 # Tests
 
 option(BUILD_TESTS "Build the tests" ON)
@@ -61,3 +58,8 @@ if(BUILD_TESTS)
 enable_testing()
 add_subdirectory(tests)
 endif()
+
+
+add_subdirectory(example)
+
+
