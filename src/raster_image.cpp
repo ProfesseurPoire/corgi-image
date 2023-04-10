@@ -60,6 +60,30 @@ color_format raster_image::format() const noexcept
 {
     return format_;
 }
+
+raster_image::raster_image(int                        width,
+                           int                        height,
+                           color_format               format,
+                           std::vector<unsigned char> data)
+    : width_(width)
+    , height_(height)
+    , format_(format)
+    , data_(std::move(data))
+{
+    switch(format)
+    {
+        case color_format::rgba:
+            bits_per_color_channel_ = 8;
+            color_channel_count_    = 4;
+            break;
+
+        case color_format::rgb:
+            bits_per_color_channel_ = 8;
+            color_channel_count_    = 3;
+            break;
+    }
+}
+
 raster_image::raster_image(int width, int height, color_format format)
     : width_(width)
     , height_(height)
