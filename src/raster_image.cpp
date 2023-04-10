@@ -65,10 +65,10 @@ raster_image::raster_image(int                        width,
                            int                        height,
                            color_format               format,
                            std::vector<unsigned char> data)
-    : width_(width)
+    : data_(std::move(data))
+    , width_(width)
     , height_(height)
     , format_(format)
-    , data_(std::move(data))
 {
     switch(format)
     {
